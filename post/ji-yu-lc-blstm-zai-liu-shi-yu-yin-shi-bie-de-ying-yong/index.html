@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>基于LC-BLSTM在流式语音识别的应用 | httang blog</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://tanghaitao-ape.github.io/favicon.ico?v=1614488883366">
+<link rel="stylesheet" href="https://tanghaitao-ape.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="
+论文链接
+问题
+语音流式识别(chunk窗)：
+LSTM效果较差，无右视野
+BLSTM效果较好，右视野为整句话
+
+初代：CSC-LSTM，𝑁𝑙+𝑁𝑐+𝑁𝑟𝑁_𝑙 + 𝑁_𝑐+ 𝑁_𝑟Nl​+Nc​+Nr​，相比BL..." />
+    <meta name="keywords" content="" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://tanghaitao-ape.github.io">
+        <img src="https://tanghaitao-ape.github.io/images/avatar.png?v=1614488883366" class="site-logo">
+        <h1 class="site-title">httang blog</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="site-nav">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/about" class="site-nav">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      
+    </div>
+    <div class="site-footer">
+      Powered by <a href="https://github.com/getgridea/gridea" target="_blank">httang blog</a> | <a class="rss" href="https://tanghaitao-ape.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">基于LC-BLSTM在流式语音识别的应用</h2>
+            <div class="post-date">2021-02-27</div>
+            
+            <div class="post-content" v-pre>
+              <p><img src="https://raw.githubusercontent.com/tanghaitao-ape/picgo/main/lcblstm1.png" alt="Image" loading="lazy"><br>
+<a href="http://download.taobaocdn.com/freedom/42562/pdf/p1bbah8vsqfhef711bcs1jqt14k54.pdf"><strong>论文链接</strong></a></p>
+<h2 id="问题">问题</h2>
+<h3 id="语音流式识别chunk窗">语音流式识别(<em>chunk</em>窗)：</h3>
+<p><em>LSTM</em>效果较差，无右视野<br>
+<em>BLSTM</em>效果较好，右视野为整句话</p>
+<ul>
+<li>初代：<strong>CSC-LSTM</strong>，<span class="katex"><span class="katex-mathml"><math><semantics><mrow><msub><mi>𝑁</mi><mi>𝑙</mi></msub><mo>+</mo><msub><mi>𝑁</mi><mi>𝑐</mi></msub><mo>+</mo><msub><mi>𝑁</mi><mi>𝑟</mi></msub></mrow><annotation encoding="application/x-tex">𝑁_𝑙 + 𝑁_𝑐+ 𝑁_𝑟</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.83333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.10903em;">N</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.33610799999999996em;"><span style="top:-2.5500000000000003em;margin-left:-0.10903em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight" style="margin-right:0.01968em;">l</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.83333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.10903em;">N</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.151392em;"><span style="top:-2.5500000000000003em;margin-left:-0.10903em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">c</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.83333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.10903em;">N</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.151392em;"><span style="top:-2.5500000000000003em;margin-left:-0.10903em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight" style="margin-right:0.02778em;">r</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>，相比BLSTM在<span class="katex"><span class="katex-mathml"><math><semantics><mrow><msub><mi>𝑁</mi><mi>𝑙</mi></msub></mrow><annotation encoding="application/x-tex">𝑁_𝑙</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.83333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.10903em;">N</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.33610799999999996em;"><span style="top:-2.5500000000000003em;margin-left:-0.10903em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight" style="margin-right:0.01968em;">l</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>和<span class="katex"><span class="katex-mathml"><math><semantics><mrow><msub><mi>𝑁</mi><mi>𝑟</mi></msub></mrow><annotation encoding="application/x-tex">𝑁_𝑟</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.83333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.10903em;">N</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.151392em;"><span style="top:-2.5500000000000003em;margin-left:-0.10903em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight" style="margin-right:0.02778em;">r</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>部分存在更多计算量</li>
+<li>二代：<strong>LC-BLSTM</strong>， <span class="katex"><span class="katex-mathml"><math><semantics><mrow><msub><mi>𝑁</mi><mi>𝑐</mi></msub><mo>+</mo><msub><mi>𝑁</mi><mi>𝑟</mi></msub></mrow><annotation encoding="application/x-tex">𝑁_𝑐+ 𝑁_𝑟</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.83333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.10903em;">N</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.151392em;"><span style="top:-2.5500000000000003em;margin-left:-0.10903em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">c</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.83333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.10903em;">N</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.151392em;"><span style="top:-2.5500000000000003em;margin-left:-0.10903em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight" style="margin-right:0.02778em;">r</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>，取消<span class="katex"><span class="katex-mathml"><math><semantics><mrow><msub><mi>𝑁</mi><mi>𝑙</mi></msub></mrow><annotation encoding="application/x-tex">𝑁_𝑙</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.83333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.10903em;">N</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.33610799999999996em;"><span style="top:-2.5500000000000003em;margin-left:-0.10903em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight" style="margin-right:0.01968em;">l</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>计算量，但是存在<span class="katex"><span class="katex-mathml"><math><semantics><mrow><msub><mi>𝑁</mi><mi>𝑟</mi></msub></mrow><annotation encoding="application/x-tex">𝑁_𝑟</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.83333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.10903em;">N</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.151392em;"><span style="top:-2.5500000000000003em;margin-left:-0.10903em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight" style="margin-right:0.02778em;">r</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span> 的计算量。具体详见图1</li>
+</ul>
+<p>分析<span class="katex"><span class="katex-mathml"><math><semantics><mrow><msub><mi>𝑁</mi><mi>𝑟</mi></msub></mrow><annotation encoding="application/x-tex">𝑁_𝑟</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.83333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.10903em;">N</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.151392em;"><span style="top:-2.5500000000000003em;margin-left:-0.10903em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight" style="margin-right:0.02778em;">r</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>部分发现：</p>
+<ul>
+<li>提供<span class="katex"><span class="katex-mathml"><math><semantics><mrow><msub><mi>𝑁</mi><mi>𝑐</mi></msub></mrow><annotation encoding="application/x-tex">𝑁_𝑐</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.83333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.10903em;">N</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.151392em;"><span style="top:-2.5500000000000003em;margin-left:-0.10903em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">c</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>前向传播中反向计算的<em>hidden state</em></li>
+<li>第<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>i</mi></mrow><annotation encoding="application/x-tex">i</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.65952em;vertical-align:0em;"></span><span class="mord mathdefault">i</span></span></span></span>层<span class="katex"><span class="katex-mathml"><math><semantics><mrow><msub><mi>𝑁</mi><mi>𝑐</mi></msub></mrow><annotation encoding="application/x-tex">𝑁_𝑐</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.83333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.10903em;">N</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.151392em;"><span style="top:-2.5500000000000003em;margin-left:-0.10903em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">c</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>前向传播计算结果为第<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>i</mi><mo>+</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">i+1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.74285em;vertical-align:-0.08333em;"></span><span class="mord mathdefault">i</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">1</span></span></span></span>层提供一部分输入</li>
+</ul>
+<figure data-type="image" tabindex="1"><img src="https://raw.githubusercontent.com/tanghaitao-ape/picgo/main/lcblstm2.png" alt="Image" loading="lazy"></figure>
+<center><small> 图1： 音频分为多个chunk </small></center>
+<h1 id="方法">方法</h1>
+<p>具体详见图2</p>
+<h3 id="前向计算">前向计算</h3>
+<ul>
+<li><span class='katex-error' title='ParseError: KaTeX parse error: Expected &#039;EOF&#039;, got &#039;#&#039; at position 1: #̲1~#𝑁_𝑐'>#1~#𝑁_𝑐</span>帧输入到模型中，并将其输出传给下一层</li>
+<li>第<span class='katex-error' title='ParseError: KaTeX parse error: Expected &#039;EOF&#039;, got &#039;#&#039; at position 1: #̲𝑁_𝑐'>#𝑁_𝑐</span>帧也会作为下一个chunk 第<span class='katex-error' title='ParseError: KaTeX parse error: Expected &#039;EOF&#039;, got &#039;#&#039; at position 1: #̲1'>#1</span>帧 hidden state的初始化</li>
+<li><span class='katex-error' title='ParseError: KaTeX parse error: Expected &#039;EOF&#039;, got &#039;#&#039; at position 1: #̲(N_𝑐+1)~#(𝑁_�…'>#(N_𝑐+1)~#(𝑁_𝑐+𝑁_𝑟)</span>输入到模型中，结果作为下一层的部分输入</li>
+</ul>
+<h3 id="反向计算">反向计算</h3>
+<ul>
+<li>初始状态为<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mn>0</mn></mrow><annotation encoding="application/x-tex">0</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">0</span></span></span></span>，从<span class='katex-error' title='ParseError: KaTeX parse error: Expected &#039;EOF&#039;, got &#039;#&#039; at position 1: #̲(𝑁_𝑐+𝑁_𝑟)~#…'>#(𝑁_𝑐+𝑁_𝑟)~#(𝑁_𝑐+1)</span>输入到模型中，将结果进行输出</li>
+<li>利用第<span class='katex-error' title='ParseError: KaTeX parse error: Expected &#039;EOF&#039;, got &#039;#&#039; at position 1: #̲(𝑁_𝑐+1)'>#(𝑁_𝑐+1)</span>的<em>hidden state</em>作为<span class='katex-error' title='ParseError: KaTeX parse error: Expected &#039;EOF&#039;, got &#039;#&#039; at position 1: #̲𝑁_𝑐'>#𝑁_𝑐</span>的<em>hidden state</em>初始化</li>
+<li><span class='katex-error' title='ParseError: KaTeX parse error: Expected &#039;EOF&#039;, got &#039;#&#039; at position 1: #̲𝑁_𝑐~#1'>#𝑁_𝑐~#1</span>帧输入到模型中，并将其输出传给下一层</li>
+</ul>
+<h3 id="汇总">汇总</h3>
+<ul>
+<li>将前向和反向计算<span class='katex-error' title='ParseError: KaTeX parse error: Expected &#039;EOF&#039;, got &#039;#&#039; at position 1: #̲1~#𝑁_𝑐'>#1~#𝑁_𝑐</span>和<span class='katex-error' title='ParseError: KaTeX parse error: Expected &#039;EOF&#039;, got &#039;#&#039; at position 1: #̲(𝑁_𝑐+1)~#(𝑁_…'>#(𝑁_𝑐+1)~#(𝑁_𝑐+𝑁_𝑟</span>)输出进行拼接，然后将前向、反向拼接的结果整合，再作为下一层的输入</li>
+<li>当网络层全部计算完，只输出<span class='katex-error' title='ParseError: KaTeX parse error: Expected &#039;EOF&#039;, got &#039;#&#039; at position 1: #̲1~#𝑁_𝑐'>#1~#𝑁_𝑐</span>的结果</li>
+</ul>
+<figure data-type="image" tabindex="2"><img src="https://raw.githubusercontent.com/tanghaitao-ape/picgo/main/lcblstm3.png" alt="Image" loading="lazy"></figure>
+<center><small> 图2：LC-BLSTM结构图 </small></center>
+<h3 id="基于dnn近似的改进算法">基于DNN近似的改进算法</h3>
+<figure data-type="image" tabindex="3"><img src="https://raw.githubusercontent.com/tanghaitao-ape/picgo/main/lcblstm4.png" alt="Image" width="500" loading="lazy"></figure>
+<center><small> 图3：基于DNN近似的LCBLSTM </small></center>
+<figure data-type="image" tabindex="4"><img src="https://raw.githubusercontent.com/tanghaitao-ape/picgo/main/lcblstm5.png" alt="Image" width="500" loading="lazy"></figure>
+<center><small> 图4：Pytorch LSTM 接口说明 </small></center>
+<p>具体细节说明：</p>
+<ul>
+<li>反向传递时，<span class="katex"><span class="katex-mathml"><math><semantics><mrow><msub><mi>N</mi><mi>c</mi></msub></mrow><annotation encoding="application/x-tex">N_c</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.83333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.10903em;">N</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.151392em;"><span style="top:-2.5500000000000003em;margin-left:-0.10903em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">c</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>帧的<em>hidden state</em>初始化由<span class="katex"><span class="katex-mathml"><math><semantics><mrow><msub><mi>N</mi><mi>r</mi></msub></mrow><annotation encoding="application/x-tex">N_r</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.83333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.10903em;">N</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.151392em;"><span style="top:-2.5500000000000003em;margin-left:-0.10903em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight" style="margin-right:0.02778em;">r</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>过<strong>DNN</strong>输出决定</li>
+<li><strong>LSTM</strong>在<em>pytorch</em>的格式如图4所示。<code>num_layer * num_directions</code> 在每一层的时候结果为1；<code>batch</code>为<span class="katex"><span class="katex-mathml"><math><semantics><mrow><msub><mi>N</mi><mi>r</mi></msub></mrow><annotation encoding="application/x-tex">N_r</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.83333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.10903em;">N</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.151392em;"><span style="top:-2.5500000000000003em;margin-left:-0.10903em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight" style="margin-right:0.02778em;">r</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>的batch，这里和<span class="katex"><span class="katex-mathml"><math><semantics><mrow><msub><mi>N</mi><mi>c</mi></msub></mrow><annotation encoding="application/x-tex">N_c</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.83333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.10903em;">N</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.151392em;"><span style="top:-2.5500000000000003em;margin-left:-0.10903em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">c</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>相等；<code>hidden_size</code>需要保证DNN的输出维度和LSTM的映射矩阵维度相等</li>
+<li><strong>DNN</strong>输出的维度为<code>batch * seq * hidden_size</code>，只需要将<code>seq</code>求平均，从而保证可以将结果作为<span class="katex"><span class="katex-mathml"><math><semantics><mrow><msub><mi>N</mi><mi>c</mi></msub></mrow><annotation encoding="application/x-tex">N_c</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.83333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.10903em;">N</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.151392em;"><span style="top:-2.5500000000000003em;margin-left:-0.10903em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">c</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>部分<strong>LSTM</strong>反向传播状态初始化的值</li>
+<li>需要注意：只是初始化<code>h0</code>，<code>c0</code>表示<strong>LSTM</strong>阀值的控制程度，其结果依然用<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mn>0</mn></mrow><annotation encoding="application/x-tex">0</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">0</span></span></span></span>进行初始化</li>
+</ul>
+<h3 id="基于rnn近似的改进算法">基于<strong>RNN</strong>近似的改进算法</h3>
+<figure data-type="image" tabindex="5"><img src="https://raw.githubusercontent.com/tanghaitao-ape/picgo/main/lcblstm6.png" alt="Image" width="500" loading="lazy"></figure>
+<center><small> 图5：基于RNN近似的LCBLSTM </small></center>
+<p>具体细节和<strong>DNN</strong>相似，不在赘述</p>
+<h1 id="具体实现">具体实现</h1>
+<h2 id="lc-blstm伪代码"><strong>LC-BLSTM</strong>伪代码</h2>
+<pre><code>输入：特征矩阵xs(batch*length*dim)，Nc，Nr，layers
+输出：高层表示ys(batch*length_*dim_)
+for i in range(0, length, Nc):
+     xs_chunk.append(xs[:, i : i + Nc + Nr])
+h0_forward, c0_forward = zeros(1, batch, hidden_size), zeros(1, batch, hidden_size)
+h0_backward, c0_backward = zeros(1, batch, hidden_size), zeros(1, batch, hidden_size)
+for i in range(length(xs_chunk)):
+     xs_ = xs_chunk[i]
+     for k in range(layers):
+          xs_forward, h0_forward, c0_forward = lstm_forward[k](xs_, h0_forward, c0_forward)
+          xs_backward, h0_backward, c0_backward = lstm_backward[k](xs_[::-1], h0_backward, c0_backward) 
+          xs_ = projection_layer[k](cat(xs_forward, xs_backward[::-1], 1))
+     ys.append(xs_[:, 0 : Nc])
+return ys
+</code></pre>
+<h2 id="基于dnn近似的lc-blstm伪代码"><strong>基于DNN近似的LC-BLSTM</strong>伪代码</h2>
+<pre><code>输入：特征矩阵xs(batch*length*dim)，Nc，Nr，layers
+输出：高层表示ys(batch*length_*dim_)
+for i in range(0, length, Nc):
+     xs_chunk.append(xs[:, i : i + Nc + Nr])
+h0_forward, c0_forward, c0_backward  = zeros(1, batch, hidden_size), zeros(1, batch, hidden_size), zeros(1, batch, hidden_size)
+for i in range(length(xs_chunk)):
+     xs_ = xs_chunk[i]
+     for k in range(layers):
+          xs_forward, h0_forward, c0_forward = lstm_forward[k](xs_[0 : Nc], h0_forward, c0_forward)
+          xs_Nc_Nr = DNN[k](xs_[Nc : Nr]) # dim  hidden_size
+          h0_backward = mean(xs_backward, 1).transpose(0,1) # batch, 1, hidden_size --&gt; 1, batch, hidden_size
+          xs_backward, h0_backward, c0_backward = lstm_backward[k](xs_[0 : Nc], h0_backward, c0_backward) 
+          xs_forward = cat(xs_forward, xs_Nc_Nr, 1); xs_backward = cat(xs_backward, xs_Nc_Nr, 1)
+          xs_ = projection_layer[k](cat(xs_forward, xs_backward, 1))
+     ys.append(xs_[:, 0 : Nc])
+return ys
+</code></pre>
+<h1 id="实验">实验</h1>
+<p>数据集：320-hr Switchboard<br>
+表1：右视野WER对比结果<br>
+<img src="https://raw.githubusercontent.com/tanghaitao-ape/picgo/main/lcblstm7.png" alt="Image" width="500" loading="lazy"></p>
+<p>表2：FABDI不同连接方式对比<br>
+<img src="https://raw.githubusercontent.com/tanghaitao-ape/picgo/main/lcblstm8.png" alt="Image" width="500" loading="lazy"></p>
+<p>表3：FABSR节点和target delay对比结果<br>
+<img src="https://raw.githubusercontent.com/tanghaitao-ape/picgo/main/lcblstm9.png" alt="Image" width="500" loading="lazy"></p>
+
+            </div>
+            
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>

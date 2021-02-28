@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>ping github.com 失败解决方案 | httang blog</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://tanghaitao-ape.github.io/favicon.ico?v=1614488883366">
+<link rel="stylesheet" href="https://tanghaitao-ape.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="问题解决
+
+使用 ping 检测工具找一个能够 ping 通 github.com 的 IP，检测工具网址如下：
+
+http://ping.chinaz.com/github.com
+
+
+选择一个响应较快的 IP，添加到 C:\Window..." />
+    <meta name="keywords" content="" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://tanghaitao-ape.github.io">
+        <img src="https://tanghaitao-ape.github.io/images/avatar.png?v=1614488883366" class="site-logo">
+        <h1 class="site-title">httang blog</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="site-nav">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/about" class="site-nav">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      
+    </div>
+    <div class="site-footer">
+      Powered by <a href="https://github.com/getgridea/gridea" target="_blank">httang blog</a> | <a class="rss" href="https://tanghaitao-ape.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">ping github.com 失败解决方案</h2>
+            <div class="post-date">2021-02-28</div>
+            
+            <div class="post-content" v-pre>
+              <h2 id="问题解决">问题解决</h2>
+<ol>
+<li>使用 ping 检测工具找一个能够 ping 通 github.com 的 IP，检测工具网址如下：</li>
+</ol>
+<p><a href="http://ping.chinaz.com/github.com">http://ping.chinaz.com/github.com</a></p>
+<figure data-type="image" tabindex="1"><img src="https://raw.githubusercontent.com/tanghaitao-ape/picgo/main/20210228111002.png" alt="Image1" loading="lazy"></figure>
+<ol>
+<li>选择一个响应较快的 IP，添加到 <code>C:\Windows\System32\drivers\etc\host</code> 文件末尾：<br>
+<img src="https://raw.githubusercontent.com/tanghaitao-ape/picgo/main/20210228111054.png" alt="Image2" loading="lazy"></li>
+</ol>
+<pre><code>140.82.113.3 github.com
+</code></pre>
+<ol start="3">
+<li>再次检测远程连接，成功。</li>
+</ol>
+
+            </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://tanghaitao-ape.github.io/post/ji-yu-lc-blstm-zai-liu-shi-yu-yin-shi-bie-de-ying-yong/">
+                  <h3 class="post-title">
+                    基于LC-BLSTM在流式语音识别的应用
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>
