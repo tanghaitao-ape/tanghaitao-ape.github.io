@@ -2,13 +2,63 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://tanghaitao-ape.github.io</id>
     <title>httang&apos;s blog</title>
-    <updated>2021-02-28T06:11:08.525Z</updated>
+    <updated>2021-02-28T07:42:30.305Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://tanghaitao-ape.github.io"/>
     <link rel="self" href="https://tanghaitao-ape.github.io/atom.xml"/>
     <logo>https://tanghaitao-ape.github.io/images/avatar.png</logo>
     <icon>https://tanghaitao-ape.github.io/favicon.ico</icon>
     <rights>All rights reserved 2021, httang&apos;s blog</rights>
+    <entry>
+        <title type="html"><![CDATA[det(min(L.fst·G.fst))搭建]]></title>
+        <id>https://tanghaitao-ape.github.io/post/detminlfstgfstda-jian/</id>
+        <link href="https://tanghaitao-ape.github.io/post/detminlfstgfstda-jian/">
+        </link>
+        <updated>2021-02-28T06:21:37.000Z</updated>
+        <content type="html"><![CDATA[<h2 id="目的">目的</h2>
+<p>在HMM模型中，输出通常为三音素。目前，ED模型更受业界欢迎，但其输出基元通常为字符或者字母。为了让ED模型输出时候能引入ngram信息，实现从字到词建模，将生成的<code>wfst</code>文件用于RNNT或LAS输出(on the fly)，需要构建<code>LG.fst</code>网络图。</p>
+<h2 id="环境配置">环境配置</h2>
+<p>需要sirlm和openfst，为方便起见，直接采用kaldi已安装的包(包含sirlm和openfst)。关于kaldi安装，具体参见<a href="https://github.com/tanghaitao-ape/kaldi">https://github.com/tanghaitao-ape/kaldi</a></p>
+<h2 id="导入相关环境变量">导入相关环境变量</h2>
+<figure data-type="image" tabindex="1"><img src="https://raw.githubusercontent.com/tanghaitao-ape/picgo/main/20210228142826.png" alt="Image1" width="3000" loading="lazy"></figure>
+<h2 id="搭建语言模型">搭建语言模型</h2>
+<p>以中文为例，将一句话进行切词(也可以单个字建模)。文本<code>txt</code>格式如下：<br>
+<img src="https://raw.githubusercontent.com/tanghaitao-ape/picgo/main/20210228143136.png" alt="Image2" loading="lazy"><br>
+训练3-gram程序如下，默认用古德图灵算法折扣值计算：<br>
+<img src="https://raw.githubusercontent.com/tanghaitao-ape/picgo/main/20210228143322.png" alt="Image3" width="3000" loading="lazy"><br>
+这里，<code>word2char.txt</code>格式如下：<br>
+<img src="https://raw.githubusercontent.com/tanghaitao-ape/picgo/main/20210228143933.png" alt="Image5" loading="lazy"><br>
+最终得到语言模型格式为arpa，其中，最左列为词的对数概率，最右列为词的回退概率。<br>
+<img src="https://raw.githubusercontent.com/tanghaitao-ape/picgo/main/20210228143541.png" alt="Image4" loading="lazy"></p>
+<h2 id="生成gfst">生成G.fst</h2>
+<p>利用<code>arpa2fst</code>将arpa语言模型转为二进制格式的G.fst，随机检测，检查FST是否是随机的。如果是，则成功退出。打印最大误差。同时，可以转为可视化文件查看。这里，<code>word.txt</code>格式如下，其中<span class='katex-error' title='ParseError: KaTeX parse error: Expected &#039;EOF&#039;, got &#039;#&#039; at position 1: #̲0'>#0</span>为消歧符，用于模型的确定化：<br>
+<img src="https://raw.githubusercontent.com/tanghaitao-ape/picgo/main/20210228144026.png" alt="Image6" loading="lazy"><br>
+具体程序实现如下：<br>
+<img src="https://raw.githubusercontent.com/tanghaitao-ape/picgo/main/20210228144533.png" alt="Image7" loading="lazy"><br>
+最终得到的<code>G.fst.txt</code>格式如下：<br>
+<img src="https://raw.githubusercontent.com/tanghaitao-ape/picgo/main/20210228144715.png" alt="Image8" loading="lazy"></p>
+<h2 id="生成lfst">生成L.fst</h2>
+<p>和通常建模不同，其目的是建立从词到字的关系，从而用于RNNT或者LAS输出的on the fly计算。因此，不存在歧义一说。<code>lexiconp.txt</code>中词到字概率为<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mn>1.0</mn></mrow><annotation encoding="application/x-tex">1.0</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">1</span><span class="mord">.</span><span class="mord">0</span></span></span></span>。<br>
+<img src="https://raw.githubusercontent.com/tanghaitao-ape/picgo/main/20210228145228.png" alt="Image9" loading="lazy"><br>
+这里，<code>character.txt</code>格式如下：<br>
+<img src="https://raw.githubusercontent.com/tanghaitao-ape/picgo/main/20210228145344.png" alt="Image10" loading="lazy"><br>
+需要注意，对生成L.fst采用<code>fstaddselfloops</code>添加自环。其中，自环的<code>in.list</code>存储<code>character.txt</code>的<span class='katex-error' title='ParseError: KaTeX parse error: Expected &#039;EOF&#039;, got &#039;#&#039; at position 1: #̲0'>#0</span>索引，<code>out.list</code>存储<code>word.txt</code>的<span class='katex-error' title='ParseError: KaTeX parse error: Expected &#039;EOF&#039;, got &#039;#&#039; at position 1: #̲0'>#0</span>索引。最后，考虑到需要与<code>G.fst</code>作复合计算，对其按<code>olabel</code>排序。具体程序如下：<br>
+<img src="https://raw.githubusercontent.com/tanghaitao-ape/picgo/main/20210228145905.png" alt="Image11" width="5000" loading="lazy"></p>
+<h2 id="生成lgfst">生成LG.fst</h2>
+<p>将<code>L.fst</code>和<code>G.fst</code>作复合计算，确定化，最小化，权值前推等处理，得到最终<code>LG.fst</code>。这里，确定化操作极为重要，会消除一个节点对应多个相同<code>ilabel</code>，从而使网络遍历更具有确定性，方便后续二分法遍历(条件：线性递增)。具体代码如下：<br>
+<img src="https://raw.githubusercontent.com/tanghaitao-ape/picgo/main/20210228150508.png" alt="Image12" width="3000" loading="lazy"><br>
+注意：虽然<code>lexiconp.txt</code>词到字是一一对应，不存在歧义。但是如果在切词<code>txt</code>时，存在歧义信息，依旧会导致作确定化的时候失败。目前，比较可行的是将每个字单独切开，从而保证字到字的映射100%确定。</p>
+<h2 id="可视化">可视化</h2>
+<p>将<code>LG.fst</code>可视化，可先利用<code>fstdraw</code>将其转为<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>d</mi><mi>o</mi><mi>t</mi></mrow><annotation encoding="application/x-tex">dot</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.69444em;vertical-align:0em;"></span><span class="mord mathdefault">d</span><span class="mord mathdefault">o</span><span class="mord mathdefault">t</span></span></span></span>文件，然后利用<code>dot</code>转为为<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>p</mi><mi>d</mi><mi>f</mi></mrow><annotation encoding="application/x-tex">pdf</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8888799999999999em;vertical-align:-0.19444em;"></span><span class="mord mathdefault">p</span><span class="mord mathdefault">d</span><span class="mord mathdefault" style="margin-right:0.10764em;">f</span></span></span></span>。其中，<code>dot</code>依赖<code>graphviz</code>，需提前安好。还需要注意，<code>dot</code>中文显示为乱码，需在dot文件添加相应的字体信息，具体见下列程序<code>edge</code>和<code>node</code>行。目前，发现<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>w</mi><mi>i</mi><mi>n</mi><mi>d</mi><mi>o</mi><mi>w</mi><mi>s</mi></mrow><annotation encoding="application/x-tex">windows</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.69444em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.02691em;">w</span><span class="mord mathdefault">i</span><span class="mord mathdefault">n</span><span class="mord mathdefault">d</span><span class="mord mathdefault">o</span><span class="mord mathdefault" style="margin-right:0.02691em;">w</span><span class="mord mathdefault">s</span></span></span></span>可正常显示，但是<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>l</mi><mi>i</mi><mi>n</mi><mi>u</mi><mi>x</mi></mrow><annotation encoding="application/x-tex">linux</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.69444em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.01968em;">l</span><span class="mord mathdefault">i</span><span class="mord mathdefault">n</span><span class="mord mathdefault">u</span><span class="mord mathdefault">x</span></span></span></span>依旧乱码。<br>
+<img src="https://raw.githubusercontent.com/tanghaitao-ape/picgo/main/20210228151024.png" alt="Image13" loading="lazy"></p>
+<h2 id="结果展示">结果展示</h2>
+<p>没有加自环的<code>LG.fst</code><br>
+<img src="https://raw.githubusercontent.com/tanghaitao-ape/picgo/main/20210228152256.png" alt="Image14" width="3000" loading="lazy"></p>
+<p>加自环的<code>LG.fst</code><br>
+<img src="https://raw.githubusercontent.com/tanghaitao-ape/picgo/main/20210228152349.png" alt="Image15" width="3000" loading="lazy"></p>
+<p>可看出，加入自环后引入回退信息。当在某一节点找不到相应<code>ilabel</code>时，会通过<code>#0:&lt;eps&gt;</code>回退到另一个节点，期望从另一个节点找到<code>ilabel</code>所对应的弧。</p>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[ping github.com 失败解决方案]]></title>
         <id>https://tanghaitao-ape.github.io/post/ping-githubcom-shi-bai-jie-jue-fang-an/</id>
