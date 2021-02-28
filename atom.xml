@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://tanghaitao-ape.github.io</id>
     <title>Gridea</title>
-    <updated>2021-02-28T03:12:17.455Z</updated>
+    <updated>2021-02-28T03:15:05.716Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://tanghaitao-ape.github.io"/>
     <link rel="self" href="https://tanghaitao-ape.github.io/atom.xml"/>
@@ -20,11 +20,12 @@
 <ol>
 <li>使用 ping 检测工具找一个能够 ping 通 github.com 的 IP，检测工具网址如下：</li>
 </ol>
-<pre><code>[http://ping.chinaz.com/github.com](http://ping.chinaz.com/github.com)
-</code></pre>
-<p><img src="https://raw.githubusercontent.com/tanghaitao-ape/picgo/main/20210228111002.png" alt="Image1" loading="lazy"><br>
-2. 选择一个响应较快的 IP，添加到 <code>C:\Windows\System32\drivers\etc\host</code> 文件末尾：<br>
-<img src="https://raw.githubusercontent.com/tanghaitao-ape/picgo/main/20210228111054.png" alt="Image2" loading="lazy"></p>
+<p><a href="http://ping.chinaz.com/github.com">http://ping.chinaz.com/github.com</a></p>
+<figure data-type="image" tabindex="1"><img src="https://raw.githubusercontent.com/tanghaitao-ape/picgo/main/20210228111002.png" alt="Image1" loading="lazy"></figure>
+<ol>
+<li>选择一个响应较快的 IP，添加到 <code>C:\Windows\System32\drivers\etc\host</code> 文件末尾：<br>
+<img src="https://raw.githubusercontent.com/tanghaitao-ape/picgo/main/20210228111054.png" alt="Image2" loading="lazy"></li>
+</ol>
 <pre><code>140.82.113.3 github.com
 </code></pre>
 <ol start="3">
