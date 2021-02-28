@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://tanghaitao-ape.github.io</id>
-    <title>Gridea</title>
-    <updated>2021-02-28T04:46:55.017Z</updated>
+    <title>httang blog</title>
+    <updated>2021-02-28T05:05:43.091Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://tanghaitao-ape.github.io"/>
     <link rel="self" href="https://tanghaitao-ape.github.io/atom.xml"/>
     <logo>https://tanghaitao-ape.github.io/images/avatar.png</logo>
     <icon>https://tanghaitao-ape.github.io/favicon.ico</icon>
-    <rights>All rights reserved 2021, Gridea</rights>
+    <rights>All rights reserved 2021, httang blog</rights>
     <entry>
         <title type="html"><![CDATA[ping github.com 失败解决方案]]></title>
         <id>https://tanghaitao-ape.github.io/post/ping-githubcom-shi-bai-jie-jue-fang-an/</id>
