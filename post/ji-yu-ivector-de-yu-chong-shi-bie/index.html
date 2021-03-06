@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta content="yes" name="apple-mobile-web-app-capable" />
+<meta content="black" name="apple-mobile-web-app-status-bar-style" />
+<meta name="referrer" content="never">
+<meta name="keywords" content="">
+<meta name="description" content="欢迎访问[httang&#39;s blog]的个人博客">
+<meta name="author" content="kveln">
+<title>基于ivector的语种识别 | httang&#39;s blog</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+<link href="https://cdn.bootcss.com/font-awesome/5.11.2/css/all.min.css" rel="stylesheet">
+<link href='https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+<link
+  href='https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800'
+  rel='stylesheet' type='text/css'>
+<link rel="alternate" type="application/rss+xml" title="基于ivector的语种识别 | httang&#39;s blog » Feed"
+  href="https://tanghaitao-ape.github.io/atom.xml">
+<link rel="stylesheet"
+  href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.15.10/build/styles/androidstudio.min.css">
+<link href="https://tanghaitao-ape.github.io/styles/main.css" rel="stylesheet">
+<script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/850552586/ericamcdn@0.1/css/live2d.css">
+
+<script>hljs.initHighlightingOnLoad();</script>
+
+  <meta property="og:description" content="基于ivector的语种识别" />
+  <meta property="og:url" content="https://tanghaitao-ape.github.io/post/ji-yu-ivector-de-yu-chong-shi-bie/" />
+  <meta property="og:locale" content="zh-CN" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="httang&#39;s blog" />
+  <!-- <script src="../assets/styles/scripts/tocScript.js"></script> -->
+</head>
+
+<body>
+  <!-- Navigation -->
+  <nav class="navbar navbar-expand-lg navbar-light fixed-top" id="mainNav">
+  <div class="container">
+    <a class="navbar-brand" href="https://tanghaitao-ape.github.io">httang&#39;s blog</a>
+    <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse"
+      data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false"
+      aria-label="Toggle navigation">
+      Menu
+      <i class="fas fa-bars"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarResponsive">
+      <ul class="navbar-nav ml-auto">
+        
+        <li class="nav-item">
+          
+          <a class="nav-link" href="https://tanghaitao-ape.github.io">首页</a>
+          
+        </li>
+        
+        <li class="nav-item">
+          
+          <a class="nav-link" href="https://tanghaitao-ape.github.io/archives">归档</a>
+          
+        </li>
+        
+        <li class="nav-item">
+          
+          <a class="nav-link" href="https://tanghaitao-ape.github.io/tags">标签</a>
+          
+        </li>
+        
+        <li class="nav-item">
+          
+          <a class="nav-link" href="/about">关于</a>
+          
+        </li>
+        
+        <li class="nav-item">
+          <div class="gridea-search-container">
+            <form id="gridea-search-form" style="position: relative" data-update="1615018510612"
+              action="/search/index.html">
+              <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+              <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+  <!-- Page Header -->
+  <nav class="navbar navbar-expand-lg navbar-light fixed-top" id="mainNav">
+  <div class="container">
+    <a class="navbar-brand" href="https://tanghaitao-ape.github.io">httang&#39;s blog</a>
+    <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse"
+      data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false"
+      aria-label="Toggle navigation">
+      Menu
+      <i class="fas fa-bars"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarResponsive">
+      <ul class="navbar-nav ml-auto">
+        
+        <li class="nav-item">
+          
+          <a class="nav-link" href="https://tanghaitao-ape.github.io">首页</a>
+          
+        </li>
+        
+        <li class="nav-item">
+          
+          <a class="nav-link" href="https://tanghaitao-ape.github.io/archives">归档</a>
+          
+        </li>
+        
+        <li class="nav-item">
+          
+          <a class="nav-link" href="https://tanghaitao-ape.github.io/tags">标签</a>
+          
+        </li>
+        
+        <li class="nav-item">
+          
+          <a class="nav-link" href="/about">关于</a>
+          
+        </li>
+        
+        <li class="nav-item">
+          <div class="gridea-search-container">
+            <form id="gridea-search-form" style="position: relative" data-update="1615018510612"
+              action="/search/index.html">
+              <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+              <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+<header class="masthead" style="background-image: url('https://tanghaitao-ape.github.io/media/images/home-bg.jpg')">
+  <div class="overlay"></div>
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8 col-md-10 mx-auto">
+        
+          <!-- 没Title为其他页面Header -->
+          
+            <!-- 没Title并且有headerType为Post：文章Header -->
+            <div class="post-heading">
+              <span class="tags">
+                
+              </span>
+              <h1>基于ivector的语种识别</h1>
+              <span class="meta">
+                Posted on
+                2021-03-06，4 min read
+              </span>
+            </div>
+          
+        
+      </div>
+    </div>
+  </div>
+</header>
+  <!-- Post Content -->
+  <article id="post-content-article">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-8 col-md-10 mx-auto post-content-container">
+          
+          <h2 id="背景">背景</h2>
+<p>针对某语种进行识别，其主要方案为传统的ivector特征，然后采用SVM进行分类。为了快速搭建基线，采用<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>K</mi><mi>a</mi><mi>l</mi><mi>d</mi><mi>i</mi></mrow><annotation encoding="application/x-tex">Kaldi</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.69444em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.07153em;">K</span><span class="mord mathdefault">a</span><span class="mord mathdefault" style="margin-right:0.01968em;">l</span><span class="mord mathdefault">d</span><span class="mord mathdefault">i</span></span></span></span>框架和<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>s</mi><mi>k</mi><mi>l</mi><mi>e</mi><mi>a</mi><mi>r</mi><mi>n</mi><mi mathvariant="normal">.</mi><mi>s</mi><mi>v</mi><mi>m</mi></mrow><annotation encoding="application/x-tex">sklearn.svm</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.69444em;vertical-align:0em;"></span><span class="mord mathdefault">s</span><span class="mord mathdefault" style="margin-right:0.03148em;">k</span><span class="mord mathdefault" style="margin-right:0.01968em;">l</span><span class="mord mathdefault">e</span><span class="mord mathdefault">a</span><span class="mord mathdefault" style="margin-right:0.02778em;">r</span><span class="mord mathdefault">n</span><span class="mord">.</span><span class="mord mathdefault">s</span><span class="mord mathdefault" style="margin-right:0.03588em;">v</span><span class="mord mathdefault">m</span></span></span></span>进行实现。</p>
+<h2 id="数据预处理">数据预处理</h2>
+<p>提前准备好所需要的<code>wav.scp</code>，<code>utt2spk</code>，<code>spk2utt</code>文件。其具体格式如下：<br>
+<code>wav.scp</code>具体内容为音频名与具体路径的对应关系<br>
+<img src="https://raw.githubusercontent.com/tanghaitao-ape/picgo/main/20210306151433.png" alt="Image" loading="lazy"><br>
+<code>utt2spk</code>具体内容为音频名与说话人的对应关系<br>
+<img src="https://raw.githubusercontent.com/tanghaitao-ape/picgo/main/20210306151546.png" alt="Image" loading="lazy"><br>
+<code>spk2utt</code>具体内容为说话人与音频名的对应关系<br>
+<img src="https://raw.githubusercontent.com/tanghaitao-ape/picgo/main/20210306151655.png" alt="Image" loading="lazy"></p>
+<h2 id="提取mfcc特征">提取<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>m</mi><mi>f</mi><mi>c</mi><mi>c</mi></mrow><annotation encoding="application/x-tex">mfcc</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8888799999999999em;vertical-align:-0.19444em;"></span><span class="mord mathdefault">m</span><span class="mord mathdefault" style="margin-right:0.10764em;">f</span><span class="mord mathdefault">c</span><span class="mord mathdefault">c</span></span></span></span>特征</h2>
+<p>直接调用<code>steps</code>下面已经封装好的<code>sh</code>文件。这里包括生成<code>mfcc</code>、<code>vad</code>和<code>数据矫正</code>会在<code>data</code>目录下生成相应的<code>feats.scp</code>文件，同时还会在<code>exp/make_mfcc</code>下面生成对应的特征。<br>
+<img src="https://raw.githubusercontent.com/tanghaitao-ape/picgo/main/20210306152105.png" alt="Image" loading="lazy"><br>
+这里，在mfcc特征提取之前，还有如下操作，它们的作用如下：</p>
+<ul>
+<li>预加重：口齿、声带差异，补偿高频</li>
+<li>分帧：避免长时语音不稳定性(250ms, 10ms)</li>
+<li>加窗：获得短时信号(汉明窗)</li>
+<li>语音活动检测：分离噪声和语音信号(能量阈值)</li>
+<li><span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>M</mi><mi>F</mi><mi>C</mi><mi>C</mi></mrow><annotation encoding="application/x-tex">MFCC</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.10903em;">M</span><span class="mord mathdefault" style="margin-right:0.13889em;">F</span><span class="mord mathdefault" style="margin-right:0.07153em;">C</span><span class="mord mathdefault" style="margin-right:0.07153em;">C</span></span></span></span>：对语种信号辨认能力(40维)</li>
+</ul>
+<h2 id="训练ubm提取ivector特征">训练UBM，提取ivector特征</h2>
+<p>UBM 的本质为高斯混合函数，训练它的目的是为了避免由于实验室环境下训练数据不足导致的过拟合，通过统计不同语种的语音分布得到的UBM，能够反映语种的平均特征分布。UBM 的训练是一个参数估计的过程，用大量的背景语种在最大似然准则（Maximum Likelihood，ML）下采用期望最大化算法（Expectation Maximization，EM）训练得到一个与语种无关、通道无关的高斯混合函数。高斯混合函数是由多个高斯概率分布函数的加权和构成的，其分布函数的维度与声学特征的维度一致，每个高斯概率分布函数的权重、均值和方差均由先验数据学习得到。因此，其特点如下：</p>
+<ul>
+<li>N个高斯分量的权重</li>
+<li>每个高斯分量的均值向量和方差向量(1048)</li>
+<li>一定程度消除说话人和语种之间的差异<br>
+<img src="https://raw.githubusercontent.com/tanghaitao-ape/picgo/main/20210306154257.png" alt="Image" loading="lazy"></li>
+</ul>
+<p>MAP最大自适应<br>
+<img src="https://raw.githubusercontent.com/tanghaitao-ape/picgo/main/20210306154600.png" alt="Image" width="500" loading="lazy"></p>
+<ul>
+<li>
+<p>关于每个语种的GMM模型</p>
+</li>
+<li>
+<p>操作：<br>
+各个高斯的权值和其方差对识别性能影响不大<br>
+通常只更新均值<br>
+<img src="https://raw.githubusercontent.com/tanghaitao-ape/picgo/main/20210306154629.png" alt="Image" width="200" loading="lazy"></p>
+</li>
+</ul>
+<p>i-vector<br>
+目前 GMM-UBM 已经成为语种识别技术的标准模型，如果把这个模型扩展成为两个联合模型，即为联合因子分析（Joint Factor Analysis，JFA）模型。其中，两个联合模型分别为具有语种之间差异的语种模型，与相同语种之间信道差异的信道模型。但是，其缺点显而易见，在训练模型时，对于语音数据的需求很苛刻：对同一语种需要多条不同环境下的语音数据，同时，计算量也非常庞大。为区分语种空间与信道空间的方法，采用 i-vector 模型，它弥补了 JFA 对于语音数据依赖性大的缺点。</p>
+<ul>
+<li>总变化空间描述语种特征空间，其包含语种的语音信息和信道信息<br>
+<img src="https://raw.githubusercontent.com/tanghaitao-ape/picgo/main/20210306155120.png" alt="Image" width="500" loading="lazy"><br>
+每段语音</li>
+</ul>
+<p class='katex-block'><span class="katex-display"><span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>M</mi><mo>=</mo><mi>m</mi><mo>+</mo><mi>T</mi><mi>w</mi></mrow><annotation encoding="application/x-tex">M = m + Tw
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.10903em;">M</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.66666em;vertical-align:-0.08333em;"></span><span class="mord mathdefault">m</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.13889em;">T</span><span class="mord mathdefault" style="margin-right:0.02691em;">w</span></span></span></span></span></p>
+<ul>
+<li>其中，<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>m</mi></mrow><annotation encoding="application/x-tex">m</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathdefault">m</span></span></span></span>为<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>U</mi><mi>B</mi><mi>M</mi></mrow><annotation encoding="application/x-tex">UBM</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.10903em;">U</span><span class="mord mathdefault" style="margin-right:0.05017em;">B</span><span class="mord mathdefault" style="margin-right:0.10903em;">M</span></span></span></span>均值超向量，<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>T</mi></mrow><annotation encoding="application/x-tex">T</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.13889em;">T</span></span></span></span>为总变化空间矩阵(<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>C</mi><mi>F</mi><mo>×</mo><mi>R</mi></mrow><annotation encoding="application/x-tex">CF \times R</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.76666em;vertical-align:-0.08333em;"></span><span class="mord mathdefault" style="margin-right:0.07153em;">C</span><span class="mord mathdefault" style="margin-right:0.13889em;">F</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.00773em;">R</span></span></span></span>)，w为<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>i</mi><mo>−</mo><mi>v</mi><mi>e</mi><mi>c</mi><mi>t</mi><mi>o</mi><mi>r</mi></mrow><annotation encoding="application/x-tex">i-vector</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.74285em;vertical-align:-0.08333em;"></span><span class="mord mathdefault">i</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.61508em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.03588em;">v</span><span class="mord mathdefault">e</span><span class="mord mathdefault">c</span><span class="mord mathdefault">t</span><span class="mord mathdefault">o</span><span class="mord mathdefault" style="margin-right:0.02778em;">r</span></span></span></span></li>
+<li><span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>i</mi><mo>−</mo><mi>v</mi><mi>e</mi><mi>c</mi><mi>t</mi><mi>o</mi><mi>r</mi></mrow><annotation encoding="application/x-tex">i-vector</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.74285em;vertical-align:-0.08333em;"></span><span class="mord mathdefault">i</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.61508em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.03588em;">v</span><span class="mord mathdefault">e</span><span class="mord mathdefault">c</span><span class="mord mathdefault">t</span><span class="mord mathdefault">o</span><span class="mord mathdefault" style="margin-right:0.02778em;">r</span></span></span></span>为符合高斯分布的一维向量<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mn>1</mn><mo>×</mo><mi>R</mi></mrow><annotation encoding="application/x-tex">1 \times R</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.72777em;vertical-align:-0.08333em;"></span><span class="mord">1</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.00773em;">R</span></span></span></span></li>
+</ul>
+<p>具体代码如下，生成的<code>ivector</code>特征在<code>i-vector</code>下面：<br>
+<img src="https://raw.githubusercontent.com/tanghaitao-ape/picgo/main/20210306152650.png" alt="Image" width="500" loading="lazy"><br>
+具体形式如下，然后可以根据自己的需求将每个文件对应的<code>ivector</code>提取出来：<br>
+<img src="https://raw.githubusercontent.com/tanghaitao-ape/picgo/main/20210306153516.png" alt="Image" loading="lazy"></p>
+<h2 id="lda">LDA</h2>
+<p>LDA 的目的是最小化类内语种距离，最大化类间语种距离。通过寻找最能区分各类数据的方向，使得新的特征更具区分性。<br>
+最小化类内语种距离，最大化类间语种距离<br>
+寻找最能区分开各类语种数据的方向<br>
+分类准则(最大化广义瑞利商)<br>
+<img src="https://raw.githubusercontent.com/tanghaitao-ape/picgo/main/20210306155251.png" alt="Image" width="500" loading="lazy"></p>
+<ul>
+<li>其中，<span class="katex"><span class="katex-mathml"><math><semantics><mrow><msub><mi>S</mi><mi>b</mi></msub></mrow><annotation encoding="application/x-tex">S_b</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.83333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.05764em;">S</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.33610799999999996em;"><span style="top:-2.5500000000000003em;margin-left:-0.05764em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">b</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>为类内协方差矩阵，<span class="katex"><span class="katex-mathml"><math><semantics><mrow><msub><mi>S</mi><mi>w</mi></msub></mrow><annotation encoding="application/x-tex">S_w</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.83333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.05764em;">S</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.151392em;"><span style="top:-2.5500000000000003em;margin-left:-0.05764em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight" style="margin-right:0.02691em;">w</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>为类间协方差矩阵。具体代码如下：</li>
+</ul>
+<figure data-type="image" tabindex="1"><img src="https://raw.githubusercontent.com/tanghaitao-ape/picgo/main/20210306153242.png" alt="Image" width="3000" loading="lazy"></figure>
+<h2 id="svm训练和预测">SVM训练和预测</h2>
+<p>SVM模型特点：</p>
+<ul>
+<li>核函数 RBF(核空间映射)</li>
+<li>数据不均衡问题（采样，类比平衡）</li>
+</ul>
+<p>具体模型示意图如下：<br>
+<img src="https://raw.githubusercontent.com/tanghaitao-ape/picgo/main/20210306155538.png" alt="Image" width="400" loading="lazy"></p>
+<p>其<code>sklearn</code>实现如下：<br>
+<img src="https://raw.githubusercontent.com/tanghaitao-ape/picgo/main/20210306153319.png" alt="Image" width="3000" loading="lazy"></p>
+
+          <div class="toc-container"><ul class="markdownIt-TOC">
+<li>
+<ul>
+<li><a href="#%E8%83%8C%E6%99%AF">背景</a></li>
+<li><a href="#%E6%95%B0%E6%8D%AE%E9%A2%84%E5%A4%84%E7%90%86">数据预处理</a></li>
+<li><a href="#%E6%8F%90%E5%8F%96mfcc%E7%89%B9%E5%BE%81">提取<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>m</mi><mi>f</mi><mi>c</mi><mi>c</mi></mrow><annotation encoding="application/x-tex">mfcc</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8888799999999999em;vertical-align:-0.19444em;"></span><span class="mord mathdefault">m</span><span class="mord mathdefault" style="margin-right:0.10764em;">f</span><span class="mord mathdefault">c</span><span class="mord mathdefault">c</span></span></span></span>特征</a></li>
+<li><a href="#%E8%AE%AD%E7%BB%83ubm%E6%8F%90%E5%8F%96ivector%E7%89%B9%E5%BE%81">训练UBM，提取ivector特征</a></li>
+<li><a href="#lda">LDA</a></li>
+<li><a href="#svm%E8%AE%AD%E7%BB%83%E5%92%8C%E9%A2%84%E6%B5%8B">SVM训练和预测</a></li>
+</ul>
+</li>
+</ul>
+</div>
+          
+          <hr />
+          <p class="next-post">下一篇：
+            <a href="https://tanghaitao-ape.github.io/post/detminlfstgfstda-jian/">
+              <span class="post-title">
+                det(min(L.fst·G.fst))搭建&rarr;
+              </span>
+            </a>
+          </p>
+          
+          <div class="comment" style="text-align: center;">
+            
+            <span id="/post/ji-yu-ivector-de-yu-chong-shi-bie/" class="leancloud_visitors"
+              data-flag-title="基于ivector的语种识别">
+              <em class="post-meta-item-text">阅读量 </em>
+              <i class="leancloud-visitors-count">loading...</i>
+            </span>
+            
+
+            
+            
+            <script src='https://cdn.jsdelivr.net/npm/valine/dist/Valine.min.js'></script>
+
+<style>
+	div#vcomments{
+		width:100%;
+		max-width: 1000px;
+		padding: 2.5%
+	}
+</style>
+
+
+	<div id="vcomments"></div>
+
+<script>
+	new Valine({
+		el: '#vcomments',
+		appId: '',
+		appKey: '',
+		avatar: '',
+		pageSize: 5,
+		recordIp: true,
+		placeholder: 'Just Go Go',
+		visitor: true,
+	});
+</script>
+
+            
+          </div>
+        </div>
+      </div>
+  </article>
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-8 col-md-10 mx-auto">
+          <ul class="list-inline text-center">
+            
+            
+              
+            
+              
+            
+              
+            
+              
+            
+              
+            
+              
+            
+              
+              <!-- <li class="list-inline-item">
+              <a href="https://tanghaitao-ape.github.io/atom.xml" target="_blank">
+                <span class="fa-stack fa-lg">
+                  <i class="fas fa-circle fa-stack-2x"></i>
+                  <i class="fas fa-rss fa-stack-1x fa-inverse"></i>
+                </span>
+              </a>
+              </li> -->
+          </ul>
+          <p class="copyright text-muted">Copyright &copy;<span>httang&#39;s blog</span><br><a href="https://github.com/getgridea/gridea" class="Themeinfo">Powered by Gridea</a></p>
+        </div>
+      </div>
+    </div>
+   </footer>
+  <!-- Bootstrap core JavaScript -->
+  <script src="https://cdn.bootcss.com/twitter-bootstrap/4.3.1/js/bootstrap.bundle.min.js"></script>
+  <!-- <script src="https://tanghaitao-ape.github.io/media/scripts/bootstrap.bundle.min.js"></script> -->
+  <!-- Bootstrap core JavaScript -->
+  <script src="https://cdn.jsdelivr.net/gh/Alanrk/clean-cdn@1.0/scripts/clean-blog.min.js"></script>
+  <!-- <script src="https://tanghaitao-ape.github.io/media/scripts/clean-blog.min.js"></script> -->
+  <script src="//instant.page/3.0.0" type="module" defer integrity="sha384-OeDn4XE77tdHo8pGtE1apMPmAipjoxUQ++eeJa6EtJCfHlvijigWiJpD7VDPWXV1"></script>
+  <style type="text/css">a.back_to_top{text-decoration:none;position:fixed;bottom:40px;right:30px;background:#f0f0f0;height:40px;width:40px;border-radius:50%;line-height:36px;font-size:18px;text-align:center;transition-duration:.5s;transition-propety:background-color;display:none}a.back_to_top span{color:#888}a.back_to_top:hover{cursor:pointer;background:#dfdfdf}a.back_to_top:hover span{color:#555}@media print,screen and(max-width:580px){.back_to_top{display:none!important}}</style>
+<a id="back_to_top" href="#" class="back_to_top">
+  <span>▲</span></a>
+<script>$(document).ready((function(_this) {
+    return function() {
+      var bt;
+      bt = $('#back_to_top');
+      if ($(document).width() > 480) {
+        $(window).scroll(function() {
+          var st;
+          st = $(window).scrollTop();
+          if (st > 30) {
+            return bt.css('display', 'block')
+          } else {
+            return bt.css('display', 'none')
+          }
+        });
+        return bt.click(function() {
+          $('body,html').animate({
+            scrollTop: 0
+          },
+          800);
+          return false
+        })
+      }
+    }
+  })(this));</script>
+  
+  <div id="landlord-parent">
+    <div id="landlord">
+        <div class="message" style="opacity:0"></div>
+        <canvas id="live2d" width="240" height="250" class="live2d"></canvas>
+    </div>
+</div>
+
+<script type="text/javascript">
+    if (/(iPhone|iPad|iPod|iOS|Android)/i.test(navigator.userAgent)) {
+        //移动端
+        console.log("------ 移动端");
+    } else {
+        console.log("------ PC端 " + navigator.userAgent);
+
+        addScript("https://cdn.jsdelivr.net/gh/850552586/ericamcdn@0.1/js/live2d.js", () => {
+            // 加载完成后再loadlive2d
+            loadlive2d("live2d", "https://tanghaitao-ape.github.io/media/live2d/assets/hijiki.model.json");
+        });
+
+        var home_Path = "https://tanghaitao-ape.github.io/";
+        addScript("https://tanghaitao-ape.github.io/media/live2d/js/message.js", () => { });
+    }
+
+    // 插入js文件，完成后callback
+    function addScript(jsfile, callback) {
+        var landlord_parent = document.getElementById("landlord-parent");
+        var script = document.createElement("script");
+        script.type = "text/javascript";
+        script.src = jsfile;
+        landlord_parent.appendChild(script);
+        script.onload = script.onreadystatechange = function () {
+            if (!this.readyState || this.readyState === "loaded" || this.readyState === "complete") {
+                script.onload = script.onreadystatechange = null;
+                if (callback && typeof callback == "function") {
+                    callback(); //window[callback]();如果传递字符串过来 调用window['函数名']() 调用方法
+                }
+            }
+        };
+    }
+</script>
+  
+  <script src="https://tanghaitao-ape.github.io/media/scripts/tocScript.js"></script>
+</body>
+
+</html>

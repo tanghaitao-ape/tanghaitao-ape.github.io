@@ -2,13 +2,100 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://tanghaitao-ape.github.io</id>
     <title>httang&apos;s blog</title>
-    <updated>2021-02-28T07:42:30.305Z</updated>
+    <updated>2021-03-06T08:15:15.256Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://tanghaitao-ape.github.io"/>
     <link rel="self" href="https://tanghaitao-ape.github.io/atom.xml"/>
     <logo>https://tanghaitao-ape.github.io/images/avatar.png</logo>
     <icon>https://tanghaitao-ape.github.io/favicon.ico</icon>
     <rights>All rights reserved 2021, httang&apos;s blog</rights>
+    <entry>
+        <title type="html"><![CDATA[基于ivector的语种识别]]></title>
+        <id>https://tanghaitao-ape.github.io/post/ji-yu-ivector-de-yu-chong-shi-bie/</id>
+        <link href="https://tanghaitao-ape.github.io/post/ji-yu-ivector-de-yu-chong-shi-bie/">
+        </link>
+        <updated>2021-03-06T07:09:19.000Z</updated>
+        <content type="html"><![CDATA[<h2 id="背景">背景</h2>
+<p>针对某语种进行识别，其主要方案为传统的ivector特征，然后采用SVM进行分类。为了快速搭建基线，采用<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>K</mi><mi>a</mi><mi>l</mi><mi>d</mi><mi>i</mi></mrow><annotation encoding="application/x-tex">Kaldi</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.69444em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.07153em;">K</span><span class="mord mathdefault">a</span><span class="mord mathdefault" style="margin-right:0.01968em;">l</span><span class="mord mathdefault">d</span><span class="mord mathdefault">i</span></span></span></span>框架和<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>s</mi><mi>k</mi><mi>l</mi><mi>e</mi><mi>a</mi><mi>r</mi><mi>n</mi><mi mathvariant="normal">.</mi><mi>s</mi><mi>v</mi><mi>m</mi></mrow><annotation encoding="application/x-tex">sklearn.svm</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.69444em;vertical-align:0em;"></span><span class="mord mathdefault">s</span><span class="mord mathdefault" style="margin-right:0.03148em;">k</span><span class="mord mathdefault" style="margin-right:0.01968em;">l</span><span class="mord mathdefault">e</span><span class="mord mathdefault">a</span><span class="mord mathdefault" style="margin-right:0.02778em;">r</span><span class="mord mathdefault">n</span><span class="mord">.</span><span class="mord mathdefault">s</span><span class="mord mathdefault" style="margin-right:0.03588em;">v</span><span class="mord mathdefault">m</span></span></span></span>进行实现。</p>
+<h2 id="数据预处理">数据预处理</h2>
+<p>提前准备好所需要的<code>wav.scp</code>，<code>utt2spk</code>，<code>spk2utt</code>文件。其具体格式如下：<br>
+<code>wav.scp</code>具体内容为音频名与具体路径的对应关系<br>
+<img src="https://raw.githubusercontent.com/tanghaitao-ape/picgo/main/20210306151433.png" alt="Image" loading="lazy"><br>
+<code>utt2spk</code>具体内容为音频名与说话人的对应关系<br>
+<img src="https://raw.githubusercontent.com/tanghaitao-ape/picgo/main/20210306151546.png" alt="Image" loading="lazy"><br>
+<code>spk2utt</code>具体内容为说话人与音频名的对应关系<br>
+<img src="https://raw.githubusercontent.com/tanghaitao-ape/picgo/main/20210306151655.png" alt="Image" loading="lazy"></p>
+<h2 id="提取mfcc特征">提取<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>m</mi><mi>f</mi><mi>c</mi><mi>c</mi></mrow><annotation encoding="application/x-tex">mfcc</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8888799999999999em;vertical-align:-0.19444em;"></span><span class="mord mathdefault">m</span><span class="mord mathdefault" style="margin-right:0.10764em;">f</span><span class="mord mathdefault">c</span><span class="mord mathdefault">c</span></span></span></span>特征</h2>
+<p>直接调用<code>steps</code>下面已经封装好的<code>sh</code>文件。这里包括生成<code>mfcc</code>、<code>vad</code>和<code>数据矫正</code>会在<code>data</code>目录下生成相应的<code>feats.scp</code>文件，同时还会在<code>exp/make_mfcc</code>下面生成对应的特征。<br>
+<img src="https://raw.githubusercontent.com/tanghaitao-ape/picgo/main/20210306152105.png" alt="Image" loading="lazy"><br>
+这里，在mfcc特征提取之前，还有如下操作，它们的作用如下：</p>
+<ul>
+<li>预加重：口齿、声带差异，补偿高频</li>
+<li>分帧：避免长时语音不稳定性(250ms, 10ms)</li>
+<li>加窗：获得短时信号(汉明窗)</li>
+<li>语音活动检测：分离噪声和语音信号(能量阈值)</li>
+<li><span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>M</mi><mi>F</mi><mi>C</mi><mi>C</mi></mrow><annotation encoding="application/x-tex">MFCC</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.10903em;">M</span><span class="mord mathdefault" style="margin-right:0.13889em;">F</span><span class="mord mathdefault" style="margin-right:0.07153em;">C</span><span class="mord mathdefault" style="margin-right:0.07153em;">C</span></span></span></span>：对语种信号辨认能力(40维)</li>
+</ul>
+<h2 id="训练ubm提取ivector特征">训练UBM，提取ivector特征</h2>
+<p>UBM 的本质为高斯混合函数，训练它的目的是为了避免由于实验室环境下训练数据不足导致的过拟合，通过统计不同语种的语音分布得到的UBM，能够反映语种的平均特征分布。UBM 的训练是一个参数估计的过程，用大量的背景语种在最大似然准则（Maximum Likelihood，ML）下采用期望最大化算法（Expectation Maximization，EM）训练得到一个与语种无关、通道无关的高斯混合函数。高斯混合函数是由多个高斯概率分布函数的加权和构成的，其分布函数的维度与声学特征的维度一致，每个高斯概率分布函数的权重、均值和方差均由先验数据学习得到。因此，其特点如下：</p>
+<ul>
+<li>N个高斯分量的权重</li>
+<li>每个高斯分量的均值向量和方差向量(1048)</li>
+<li>一定程度消除说话人和语种之间的差异<br>
+<img src="https://raw.githubusercontent.com/tanghaitao-ape/picgo/main/20210306154257.png" alt="Image" loading="lazy"></li>
+</ul>
+<p>MAP最大自适应<br>
+<img src="https://raw.githubusercontent.com/tanghaitao-ape/picgo/main/20210306154600.png" alt="Image" width="500" loading="lazy"></p>
+<ul>
+<li>
+<p>关于每个语种的GMM模型</p>
+</li>
+<li>
+<p>操作：<br>
+各个高斯的权值和其方差对识别性能影响不大<br>
+通常只更新均值<br>
+<img src="https://raw.githubusercontent.com/tanghaitao-ape/picgo/main/20210306154629.png" alt="Image" width="200" loading="lazy"></p>
+</li>
+</ul>
+<p>i-vector<br>
+目前 GMM-UBM 已经成为语种识别技术的标准模型，如果把这个模型扩展成为两个联合模型，即为联合因子分析（Joint Factor Analysis，JFA）模型。其中，两个联合模型分别为具有语种之间差异的语种模型，与相同语种之间信道差异的信道模型。但是，其缺点显而易见，在训练模型时，对于语音数据的需求很苛刻：对同一语种需要多条不同环境下的语音数据，同时，计算量也非常庞大。为区分语种空间与信道空间的方法，采用 i-vector 模型，它弥补了 JFA 对于语音数据依赖性大的缺点。</p>
+<ul>
+<li>总变化空间描述语种特征空间，其包含语种的语音信息和信道信息<br>
+<img src="https://raw.githubusercontent.com/tanghaitao-ape/picgo/main/20210306155120.png" alt="Image" width="500" loading="lazy"><br>
+每段语音</li>
+</ul>
+<p class='katex-block'><span class="katex-display"><span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>M</mi><mo>=</mo><mi>m</mi><mo>+</mo><mi>T</mi><mi>w</mi></mrow><annotation encoding="application/x-tex">M = m + Tw
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.10903em;">M</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.66666em;vertical-align:-0.08333em;"></span><span class="mord mathdefault">m</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.13889em;">T</span><span class="mord mathdefault" style="margin-right:0.02691em;">w</span></span></span></span></span></p>
+<ul>
+<li>其中，<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>m</mi></mrow><annotation encoding="application/x-tex">m</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathdefault">m</span></span></span></span>为<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>U</mi><mi>B</mi><mi>M</mi></mrow><annotation encoding="application/x-tex">UBM</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.10903em;">U</span><span class="mord mathdefault" style="margin-right:0.05017em;">B</span><span class="mord mathdefault" style="margin-right:0.10903em;">M</span></span></span></span>均值超向量，<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>T</mi></mrow><annotation encoding="application/x-tex">T</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.13889em;">T</span></span></span></span>为总变化空间矩阵(<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>C</mi><mi>F</mi><mo>×</mo><mi>R</mi></mrow><annotation encoding="application/x-tex">CF \times R</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.76666em;vertical-align:-0.08333em;"></span><span class="mord mathdefault" style="margin-right:0.07153em;">C</span><span class="mord mathdefault" style="margin-right:0.13889em;">F</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.00773em;">R</span></span></span></span>)，w为<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>i</mi><mo>−</mo><mi>v</mi><mi>e</mi><mi>c</mi><mi>t</mi><mi>o</mi><mi>r</mi></mrow><annotation encoding="application/x-tex">i-vector</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.74285em;vertical-align:-0.08333em;"></span><span class="mord mathdefault">i</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.61508em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.03588em;">v</span><span class="mord mathdefault">e</span><span class="mord mathdefault">c</span><span class="mord mathdefault">t</span><span class="mord mathdefault">o</span><span class="mord mathdefault" style="margin-right:0.02778em;">r</span></span></span></span></li>
+<li><span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>i</mi><mo>−</mo><mi>v</mi><mi>e</mi><mi>c</mi><mi>t</mi><mi>o</mi><mi>r</mi></mrow><annotation encoding="application/x-tex">i-vector</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.74285em;vertical-align:-0.08333em;"></span><span class="mord mathdefault">i</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.61508em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.03588em;">v</span><span class="mord mathdefault">e</span><span class="mord mathdefault">c</span><span class="mord mathdefault">t</span><span class="mord mathdefault">o</span><span class="mord mathdefault" style="margin-right:0.02778em;">r</span></span></span></span>为符合高斯分布的一维向量<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mn>1</mn><mo>×</mo><mi>R</mi></mrow><annotation encoding="application/x-tex">1 \times R</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.72777em;vertical-align:-0.08333em;"></span><span class="mord">1</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.00773em;">R</span></span></span></span></li>
+</ul>
+<p>具体代码如下，生成的<code>ivector</code>特征在<code>i-vector</code>下面：<br>
+<img src="https://raw.githubusercontent.com/tanghaitao-ape/picgo/main/20210306152650.png" alt="Image" width="500" loading="lazy"><br>
+具体形式如下，然后可以根据自己的需求将每个文件对应的<code>ivector</code>提取出来：<br>
+<img src="https://raw.githubusercontent.com/tanghaitao-ape/picgo/main/20210306153516.png" alt="Image" loading="lazy"></p>
+<h2 id="lda">LDA</h2>
+<p>LDA 的目的是最小化类内语种距离，最大化类间语种距离。通过寻找最能区分各类数据的方向，使得新的特征更具区分性。<br>
+最小化类内语种距离，最大化类间语种距离<br>
+寻找最能区分开各类语种数据的方向<br>
+分类准则(最大化广义瑞利商)<br>
+<img src="https://raw.githubusercontent.com/tanghaitao-ape/picgo/main/20210306155251.png" alt="Image" width="500" loading="lazy"></p>
+<ul>
+<li>其中，<span class="katex"><span class="katex-mathml"><math><semantics><mrow><msub><mi>S</mi><mi>b</mi></msub></mrow><annotation encoding="application/x-tex">S_b</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.83333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.05764em;">S</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.33610799999999996em;"><span style="top:-2.5500000000000003em;margin-left:-0.05764em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">b</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>为类内协方差矩阵，<span class="katex"><span class="katex-mathml"><math><semantics><mrow><msub><mi>S</mi><mi>w</mi></msub></mrow><annotation encoding="application/x-tex">S_w</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.83333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.05764em;">S</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.151392em;"><span style="top:-2.5500000000000003em;margin-left:-0.05764em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight" style="margin-right:0.02691em;">w</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>为类间协方差矩阵。具体代码如下：</li>
+</ul>
+<figure data-type="image" tabindex="1"><img src="https://raw.githubusercontent.com/tanghaitao-ape/picgo/main/20210306153242.png" alt="Image" width="3000" loading="lazy"></figure>
+<h2 id="svm训练和预测">SVM训练和预测</h2>
+<p>SVM模型特点：</p>
+<ul>
+<li>核函数 RBF(核空间映射)</li>
+<li>数据不均衡问题（采样，类比平衡）</li>
+</ul>
+<p>具体模型示意图如下：<br>
+<img src="https://raw.githubusercontent.com/tanghaitao-ape/picgo/main/20210306155538.png" alt="Image" width="400" loading="lazy"></p>
+<p>其<code>sklearn</code>实现如下：<br>
+<img src="https://raw.githubusercontent.com/tanghaitao-ape/picgo/main/20210306153319.png" alt="Image" width="3000" loading="lazy"></p>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[det(min(L.fst·G.fst))搭建]]></title>
         <id>https://tanghaitao-ape.github.io/post/detminlfstgfstda-jian/</id>
