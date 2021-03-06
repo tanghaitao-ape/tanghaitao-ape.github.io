@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://tanghaitao-ape.github.io</id>
     <title>httang&apos;s blog</title>
-    <updated>2021-03-06T08:27:10.961Z</updated>
+    <updated>2021-03-06T08:29:21.476Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://tanghaitao-ape.github.io"/>
     <link rel="self" href="https://tanghaitao-ape.github.io/atom.xml"/>
@@ -16,19 +16,19 @@
         </link>
         <updated>2021-03-06T07:09:19.000Z</updated>
         <content type="html"><![CDATA[<h2 id="背景">背景</h2>
-<p>针对某语种进行识别，其主要方案为传统的ivector特征，然后采用SVM进行分类。为了快速搭建基线，采用<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>K</mi><mi>a</mi><mi>l</mi><mi>d</mi><mi>i</mi></mrow><annotation encoding="application/x-tex">Kaldi</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.69444em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.07153em;">K</span><span class="mord mathdefault">a</span><span class="mord mathdefault" style="margin-right:0.01968em;">l</span><span class="mord mathdefault">d</span><span class="mord mathdefault">i</span></span></span></span>框架和<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>s</mi><mi>k</mi><mi>l</mi><mi>e</mi><mi>a</mi><mi>r</mi><mi>n</mi><mi mathvariant="normal">.</mi><mi>s</mi><mi>v</mi><mi>m</mi></mrow><annotation encoding="application/x-tex">sklearn.svm</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.69444em;vertical-align:0em;"></span><span class="mord mathdefault">s</span><span class="mord mathdefault" style="margin-right:0.03148em;">k</span><span class="mord mathdefault" style="margin-right:0.01968em;">l</span><span class="mord mathdefault">e</span><span class="mord mathdefault">a</span><span class="mord mathdefault" style="margin-right:0.02778em;">r</span><span class="mord mathdefault">n</span><span class="mord">.</span><span class="mord mathdefault">s</span><span class="mord mathdefault" style="margin-right:0.03588em;">v</span><span class="mord mathdefault">m</span></span></span></span>进行实现。</p>
+<p>针对某语种进行识别，其主要方案为传统ivector特征，采用SVM分类。为快速搭建基线，采用<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>K</mi><mi>a</mi><mi>l</mi><mi>d</mi><mi>i</mi></mrow><annotation encoding="application/x-tex">Kaldi</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.69444em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.07153em;">K</span><span class="mord mathdefault">a</span><span class="mord mathdefault" style="margin-right:0.01968em;">l</span><span class="mord mathdefault">d</span><span class="mord mathdefault">i</span></span></span></span>框架和<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>s</mi><mi>k</mi><mi>l</mi><mi>e</mi><mi>a</mi><mi>r</mi><mi>n</mi><mi mathvariant="normal">.</mi><mi>s</mi><mi>v</mi><mi>m</mi></mrow><annotation encoding="application/x-tex">sklearn.svm</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.69444em;vertical-align:0em;"></span><span class="mord mathdefault">s</span><span class="mord mathdefault" style="margin-right:0.03148em;">k</span><span class="mord mathdefault" style="margin-right:0.01968em;">l</span><span class="mord mathdefault">e</span><span class="mord mathdefault">a</span><span class="mord mathdefault" style="margin-right:0.02778em;">r</span><span class="mord mathdefault">n</span><span class="mord">.</span><span class="mord mathdefault">s</span><span class="mord mathdefault" style="margin-right:0.03588em;">v</span><span class="mord mathdefault">m</span></span></span></span>实现。</p>
 <h2 id="数据预处理">数据预处理</h2>
 <p>提前准备好所需要的<code>wav.scp</code>，<code>utt2spk</code>，<code>spk2utt</code>文件。其具体格式如下：<br>
-<code>wav.scp</code>具体内容为音频名与具体路径的对应关系<br>
+<code>wav.scp</code>为音频名与具体路径的对应关系<br>
 <img src="https://raw.githubusercontent.com/tanghaitao-ape/picgo/main/20210306151433.png" alt="Image" loading="lazy"><br>
-<code>utt2spk</code>具体内容为音频名与说话人的对应关系<br>
+<code>utt2spk</code>为音频名与说话人的对应关系<br>
 <img src="https://raw.githubusercontent.com/tanghaitao-ape/picgo/main/20210306151546.png" alt="Image" loading="lazy"><br>
-<code>spk2utt</code>具体内容为说话人与音频名的对应关系<br>
+<code>spk2utt</code>为说话人与音频名的对应关系<br>
 <img src="https://raw.githubusercontent.com/tanghaitao-ape/picgo/main/20210306151655.png" alt="Image" loading="lazy"></p>
 <h2 id="提取mfcc特征">提取<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>m</mi><mi>f</mi><mi>c</mi><mi>c</mi></mrow><annotation encoding="application/x-tex">mfcc</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8888799999999999em;vertical-align:-0.19444em;"></span><span class="mord mathdefault">m</span><span class="mord mathdefault" style="margin-right:0.10764em;">f</span><span class="mord mathdefault">c</span><span class="mord mathdefault">c</span></span></span></span>特征</h2>
 <p>直接调用<code>steps</code>下面已经封装好的<code>sh</code>文件。这里包括生成<code>mfcc</code>、<code>vad</code>和<code>数据矫正</code>会在<code>data</code>目录下生成相应的<code>feats.scp</code>文件，同时还会在<code>exp/make_mfcc</code>下面生成对应的特征。<br>
 <img src="https://raw.githubusercontent.com/tanghaitao-ape/picgo/main/20210306152105.png" alt="Image" loading="lazy"><br>
-这里，在mfcc特征提取之前，还有如下操作，它们的作用如下：</p>
+这里，在mfcc特征提取之前，还有如下操作，它们作用如下：</p>
 <ul>
 <li>预加重：口齿、声带差异，补偿高频</li>
 <li>分帧：避免长时语音不稳定性(250ms, 10ms)</li>
