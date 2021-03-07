@@ -2,13 +2,46 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://tanghaitao-ape.github.io</id>
     <title>httang&apos;s blog</title>
-    <updated>2021-03-06T08:38:04.911Z</updated>
+    <updated>2021-03-07T08:54:29.449Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://tanghaitao-ape.github.io"/>
     <link rel="self" href="https://tanghaitao-ape.github.io/atom.xml"/>
     <logo>https://tanghaitao-ape.github.io/images/avatar.png</logo>
     <icon>https://tanghaitao-ape.github.io/favicon.ico</icon>
     <rights>All rights reserved 2021, httang&apos;s blog</rights>
+    <entry>
+        <title type="html"><![CDATA[vim设置]]></title>
+        <id>https://tanghaitao-ape.github.io/post/vim-she-zhi/</id>
+        <link href="https://tanghaitao-ape.github.io/post/vim-she-zhi/">
+        </link>
+        <updated>2021-03-07T06:35:02.000Z</updated>
+        <content type="html"><![CDATA[<p>vim <code>~/.vimrc</code><br>
+功能：一个<code>tab</code>等于4个空格，显示行数，将每行对于的空格替换为点。</p>
+<pre><code>set ts=4
+set softtabstop=4
+set shiftwidth=4
+set expandtab
+set autoindent
+set nu
+set list
+set listchars=tab:&gt;\\,trail:·,extends:#,nbsp:.
+let g:SuperTabDefaultCompletionType = &quot;context&quot;
+let g:snips_trigger_key='&lt;F2&gt;' 
+`
+主题
+地址：[https://github.com/altercation/vim-colors-solarized](https://github.com/altercation/vim-colors-solarized)
+安装
+</code></pre>
+<p>cd vim-colors-solarized/colors<br>
+mv solarized.vim ~/.vim/colors/</p>
+<pre><code> 然后在 ~/.gvimrc 文件中添加以下几行命令
+</code></pre>
+<p>syntax enable<br>
+set background=light<br>
+colorscheme solarized</p>
+<pre><code></code></pre>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[基于ivector的语种识别]]></title>
         <id>https://tanghaitao-ape.github.io/post/ji-yu-ivector-de-yu-chong-shi-bie/</id>
